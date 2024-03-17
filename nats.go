@@ -2,7 +2,7 @@ package mevconn
 
 import (
 	"fmt"
-	"github.com/justjack1521/mevconn/internal"
+	"github.com/justjack1521/mevconn/internal/env"
 )
 
 const (
@@ -17,35 +17,44 @@ var (
 	}
 )
 
-type NATSConfig struct {
-	Host  string
-	Port  string
-	Token string
+type NATSConfig interface {
+	URL() string
+	Token() string
 }
 
-func (c NATSConfig) URL() string {
-	return fmt.Sprintf("nats://%s:%s", c.Host, c.Port)
+type natsConfig struct {
+	host  string
+	port  string
+	token string
+}
+
+func (c natsConfig) Token() string {
+	return c.token
+}
+
+func (c natsConfig) URL() string {
+	return fmt.Sprintf("nats://%s:%s", c.host, c.port)
 }
 
 func NewNATSConfig() (NATSConfig, error) {
-	host, err := internal.MustGetEnvironmentVariable(natsHostEnvKey)
+	host, err := env.MustGetEnvironmentVariable(natsHostEnvKey)
 	if err != nil {
-		return NATSConfig{}, errBuildingNATSConfig(err)
+		return natsConfig{}, errBuildingNATSConfig(err)
 	}
 
-	port, err := internal.MustGetEnvironmentVariable(natsPortEnvKey)
+	port, err := env.MustGetEnvironmentVariable(natsPortEnvKey)
 	if err != nil {
-		return NATSConfig{}, errBuildingNATSConfig(err)
+		return natsConfig{}, errBuildingNATSConfig(err)
 	}
 
-	token, err := internal.MustGetEnvironmentVariable(natsTokenKey)
+	token, err := env.MustGetEnvironmentVariable(natsTokenKey)
 	if err != nil {
-		return NATSConfig{}, errBuildingNATSConfig(err)
+		return natsConfig{}, errBuildingNATSConfig(err)
 	}
 
-	return NATSConfig{
-		Host:  host,
-		Port:  port,
-		Token: token,
+	return natsConfig{
+		host:  host,
+		port:  port,
+		token: token,
 	}, nil
 }

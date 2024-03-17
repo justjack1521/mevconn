@@ -2,7 +2,7 @@ package mevconn
 
 import (
 	"fmt"
-	"github.com/justjack1521/mevconn/internal"
+	"github.com/justjack1521/mevconn/internal/env"
 )
 
 const (
@@ -17,33 +17,42 @@ var (
 	}
 )
 
-type RedisConfig struct {
-	Host     string
-	Port     string
-	Password string
+type RedisConfig interface {
+	DSN() string
+	Password() string
 }
 
-func (c RedisConfig) DSN() string {
-	return fmt.Sprintf("%s:%s", c.Host, c.Port)
+type redisConfig struct {
+	host     string
+	port     string
+	password string
+}
+
+func (c redisConfig) DSN() string {
+	return fmt.Sprintf("%s:%s", c.host, c.port)
+}
+
+func (c redisConfig) Password() string {
+	return c.password
 }
 
 func NewRedisConfig() (RedisConfig, error) {
-	host, err := internal.MustGetEnvironmentVariable(redisHostEnvKey)
+	host, err := env.MustGetEnvironmentVariable(redisHostEnvKey)
 	if err != nil {
-		return RedisConfig{}, errBuildingRedisConfig(err)
+		return redisConfig{}, errBuildingRedisConfig(err)
 	}
 
-	port, err := internal.MustGetEnvironmentVariable(redisHostPortKey)
+	port, err := env.MustGetEnvironmentVariable(redisHostPortKey)
 	if err != nil {
-		return RedisConfig{}, errBuildingRedisConfig(err)
+		return redisConfig{}, errBuildingRedisConfig(err)
 	}
-	password, err := internal.MustGetEnvironmentVariable(redisHostPasswordKey)
+	password, err := env.MustGetEnvironmentVariable(redisHostPasswordKey)
 	if err != nil {
-		return RedisConfig{}, errBuildingRedisConfig(err)
+		return redisConfig{}, errBuildingRedisConfig(err)
 	}
-	return RedisConfig{
-		Host:     host,
-		Port:     port,
-		Password: password,
+	return redisConfig{
+		host:     host,
+		port:     port,
+		password: password,
 	}, nil
 }

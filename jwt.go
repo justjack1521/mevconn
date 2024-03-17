@@ -2,7 +2,7 @@ package mevconn
 
 import (
 	"fmt"
-	"github.com/justjack1521/mevconn/internal"
+	"github.com/justjack1521/mevconn/internal/env"
 )
 
 const (
@@ -16,25 +16,33 @@ var (
 	}
 )
 
-type JWTConfig struct {
-	AccessSecret  string
-	RefreshSecret string
+type JWTConfig interface {
+	Secrets() (access string, refresh string)
+}
+
+type jwtConfig struct {
+	accessSecret  string
+	refreshSecret string
+}
+
+func (c jwtConfig) Secrets() (access string, refresh string) {
+	return c.accessSecret, c.refreshSecret
 }
 
 func NewJWTConfig() (JWTConfig, error) {
-	access, err := internal.MustGetEnvironmentVariable(jwtAccessSecretEnvKey)
+	access, err := env.MustGetEnvironmentVariable(jwtAccessSecretEnvKey)
 	if err != nil {
-		return JWTConfig{}, errBuildingJWTConfig(err)
+		return jwtConfig{}, errBuildingJWTConfig(err)
 	}
 
-	refresh, err := internal.MustGetEnvironmentVariable(jwtRefreshSecretEnvKey)
+	refresh, err := env.MustGetEnvironmentVariable(jwtRefreshSecretEnvKey)
 	if err != nil {
-		return JWTConfig{}, errBuildingJWTConfig(err)
+		return jwtConfig{}, errBuildingJWTConfig(err)
 	}
 
-	return JWTConfig{
-		AccessSecret:  access,
-		RefreshSecret: refresh,
+	return jwtConfig{
+		accessSecret:  access,
+		refreshSecret: refresh,
 	}, nil
 
 }
