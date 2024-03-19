@@ -12,6 +12,7 @@ const (
 	AUTHSERVICENAME   ServiceName = "AUTH"
 	SOCIALSERVICENAME ServiceName = "SOCIAL"
 	RANKSERVICENAME   ServiceName = "RANK"
+	MULTISERVICENAME  ServiceName = "MULTI"
 
 	grpcHostEnvKey = "GRPC_HOST_"
 	grpcPortEnvKey = "GRPC_PORT_"
