@@ -55,6 +55,7 @@ func CreateNewRelicConfig() (NewRelicConfig, error) {
 
 	return newRelicConfig{
 		appName:    app,
+		appGuid:    env.GetEnvironmentVariable(newRelicGuidEnvKey),
 		licenseKey: key,
 	}, nil
 
