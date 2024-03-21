@@ -19,6 +19,7 @@ var (
 )
 
 type RedisConfig interface {
+	Host() string
 	DSN() string
 	Username() string
 	Password() string
@@ -29,6 +30,10 @@ type redisConfig struct {
 	port     string
 	username string
 	password string
+}
+
+func (c redisConfig) Host() string {
+	return c.host
 }
 
 func (c redisConfig) Username() string {
