@@ -8,6 +8,7 @@ import (
 const (
 	redisHostEnvKey      = "REDISHOST"
 	redisHostPortKey     = "REDISPORT"
+	redisUserNameKey     = "REDISUSERNAME"
 	redisHostPasswordKey = "REDISPASSWORD"
 )
 
@@ -19,13 +20,19 @@ var (
 
 type RedisConfig interface {
 	DSN() string
+	Username() string
 	Password() string
 }
 
 type redisConfig struct {
 	host     string
 	port     string
+	username string
 	password string
+}
+
+func (c redisConfig) Username() string {
+	return c.username
 }
 
 func (c redisConfig) DSN() string {
@@ -41,10 +48,13 @@ func NewRedisConfig() (RedisConfig, error) {
 	if err != nil {
 		return redisConfig{}, errBuildingRedisConfig(err)
 	}
-
 	port, err := env.MustGetEnvironmentVariable(redisHostPortKey)
 	if err != nil {
 		return redisConfig{}, errBuildingRedisConfig(err)
+	}
+	user, err := env.MustGetEnvironmentVariable(redisUserNameKey)
+	if err != nil {
+		return redisConfig{}, err
 	}
 	password, err := env.MustGetEnvironmentVariable(redisHostPasswordKey)
 	if err != nil {
@@ -53,6 +63,7 @@ func NewRedisConfig() (RedisConfig, error) {
 	return redisConfig{
 		host:     host,
 		port:     port,
+		username: user,
 		password: password,
 	}, nil
 }
