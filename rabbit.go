@@ -30,7 +30,7 @@ type rabbitMQConfig struct {
 }
 
 func (c rabbitMQConfig) Source() string {
-	return fmt.Sprintf("amqp://%s:%s@%s:%s", c.username, c.password, c.host, c.port)
+	return fmt.Sprintf("amqps://%s:%s@%s/%s", c.username, c.password, c.host, c.username)
 }
 
 func CreateRabbitMQConfig() (RabbitMQConfig, error) {
