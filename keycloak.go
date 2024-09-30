@@ -12,6 +12,11 @@ const (
 	keyCloakRealmKey        = "KCREALM"
 )
 
+const (
+	keyCloakAdminUsernameKey = "KCADMINUSERNAME"
+	keyCloakAdminPasswordKey = "KCADMINPASSWORD"
+)
+
 var (
 	errBuildingKeyCloakConfig = func(err error) error {
 		return fmt.Errorf("error when building keycloak config: %w", err)
@@ -23,13 +28,20 @@ type KeyCloakConfig interface {
 	ClientID() string
 	ClientSecret() string
 	Realm() string
+	AdminCredentials() (username string, password string)
 }
 
 type keyCloakConfig struct {
-	hostName     string
-	clientID     string
-	clientSecret string
-	realm        string
+	hostName      string
+	clientID      string
+	clientSecret  string
+	realm         string
+	adminUsername string
+	adminPassword string
+}
+
+func (c keyCloakConfig) AdminCredentials() (username string, password string) {
+	return c.adminUsername, c.adminPassword
 }
 
 func (c keyCloakConfig) Hostname() string {
@@ -71,10 +83,12 @@ func NewKeyCloakConfig() (KeyCloakConfig, error) {
 	}
 
 	return keyCloakConfig{
-		hostName:     host,
-		clientID:     id,
-		clientSecret: secret,
-		realm:        realm,
+		hostName:      host,
+		clientID:      id,
+		clientSecret:  secret,
+		realm:         realm,
+		adminUsername: env.GetEnvironmentVariable(keyCloakAdminUsernameKey),
+		adminPassword: env.GetEnvironmentVariable(keyCloakAdminPasswordKey),
 	}, nil
 
 }
